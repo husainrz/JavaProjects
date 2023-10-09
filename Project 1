@@ -1,0 +1,472 @@
+// CMSC 330 7381 Advanced Programming Languages
+// Week 4 - Project 1
+// Husain Rizvi
+// November 11, 2022
+
+// This program essentially parses a GUI definition language defined in an
+// input file and generates the GUI that it defines by using recursive descent 
+
+package Project1;   // Project1 package 
+
+import java.awt.*;   // Importing java.awt package with all of its contents
+import javax.swing.*;   // Importing javax.swing package with all of its contents
+import java.util.*;     // Importing java.util package with all of its contents
+import java.io.*;   // Importing java.io package with all of its contents 
+
+// This main class contains the main method and other methods that take the input file 
+// and parses a GUI definition language that is defined in an input file and then
+// generates the GUi that it defines by using recursive descent 
+
+// Creating public class Main
+
+public class Main { // Start of Main class 
+
+    // Creating private static variables to make them more easily accessible
+    // from inside the Main class 
+
+    private static GridLayout gridLayout;        // GridLayout private static variable, gridLayout
+    private static JButton button;        // JButton private static variable, button
+    private static JFrame mainFrame;        // JFrame private static variable, mainFrame
+    private static Scanner scanner;     // Scanner private static variable, scanner     
+    private static File input;      // File private static variable, input 
+
+    // Creating main() method where the input is read and parsed through
+    // and where the GUI and its frame and components is created 
+
+    public static void main(String[] args) throws Exception {   // Start of main() method
+
+        // Creating String variables for this main() method 
+
+        String line;    // Creating String variable, line
+        String token;   // Creating String variable, token
+
+        // Creating new file and assigning the Input.txt file to the static File variable, input
+
+        input = new File("/Users/macbook/Desktop/CMSC 330/Project1/Input.txt");
+
+        // Creating try catch block to catch the FileNotFoundException exception 
+
+        try{    // Start of try catch block 
+
+            scanner = new Scanner(input);   // Assigning the Input.txt file to the static Scanner variable, scanner 
+
+            // Creating a while loop to go through and read the input 
+
+            while(scanner.hasNext()){   // Start of while loop 
+
+                line = scanner.nextLine();  // Assigning the next line of the input file to the String variable line 
+
+                line = line.trim(); // Calling trim() method on the line variable to trim any whitespaces on the line of the input file 
+
+                // Calling getToken() method on the line to return the String with only letters and assigning the String to the static String variable, token
+
+                token = getToken(line); 
+
+                int length = token.length();    // Creating int variable length and initializing it with the length of the token String
+
+                line = line.substring(length);  // Creating a substring of the line starting with the length of the token String and assigning it to the line String 
+
+                line = line.trim(); // Calling trim() method on the line variable to trim any whitespaces on the line of the input file
+                
+                // Calling the addContent() Component class method that creates the GUI main frame as well as all of its components and assigning
+                // it to the mainFrame JFrame object. In order for the addContent() method result to be assigned to the mainFrame JFrame class object
+                // there has to be a cast for the JFrame class in front of the addContent() method call as seen below 
+
+                mainFrame = (JFrame) addContent(line, token);  
+
+                // Calling setDefaultCloseOperation and giving the
+                // argument to JFrame.EXIT_ON_CLOSE to exit the application
+                // on the default window close operation
+
+                mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+                // Calling pack() method on mainFrame to cause the window
+                // to be sized to the fit the preffered size and layouts 
+                // of its subcomponents
+
+                mainFrame.pack();
+
+                // Calling setVisible() method on mainFrame and setting argument to 
+                // true to show the GUI window
+
+                mainFrame.setVisible(true);
+
+            }   // End of while loop 
+
+        } catch(FileNotFoundException e){ // Start of catch block 
+
+            System.out.println("Error - File not found. Please input the correct file path.");  // Displaying error messages for FileNotFoundException 
+
+        }   // End of try catch block
+
+    }   // End of main() method
+
+    // Creating private static method, getToken() that ensures 
+    // the characters in the input string are letters and
+    // then breaks the for loop when the next character in the string isn't a character
+    // and then returns a substring of the input string with all of the letters that were read  
+
+    private static String getToken(String string1){ // Start of getToken() method 
+        
+        // Creating int and char variables, count and c
+
+        int count;  // Creating int variable, count 
+        char c; // Creating char variable, c 
+
+        // Creating for loop to go through each character of a given string
+        // and calling the isLetter() method on the character to check 
+        // if the character is a letter or not. If the character is a letter,
+        // the for loop continues, but if the character isn't a letter the for loop breaks 
+
+        for(count = 0; count < string1.length(); count++){  // Start of for loop 
+
+            // Calling the charAt() method on the string1 string to obtain the character
+            // at the specified index (count) and then assigns that character to the char variable, c
+
+            c = string1.charAt(count);
+
+            // Creating an if statement to check if the given character (c) is a letter by 
+            // calling the isLetter() method on the char variable, c. If the character is a letter,
+            // the for loop continues but if the character isn't a letter then the for loop breaks  
+    
+            if(!Character.isLetter(c)){  // Start of if statement 
+                break;
+            }   // End of if statement 
+    
+        }   // End of for loop
+        
+        // Calling substring() method on the string1 string with a beginning index of 0
+        // and the end index of the variable count (this would be the number at which the for loop breaks)
+        // and then returning the substring 
+
+        return string1.substring(0, count);
+
+    }   // End of getToken() method 
+
+    // Creating private static Component class method, addContent() that takes two Strings as arguments and throws an Exception
+    // This method is created from the Component class as it allows for creation of GUI component objects such as panels, frames,
+    // buttons, labels, etc. Form this method we will be reading from the input file and building a GUI off of the input and GUI's
+    // grammar 
+
+    private static Component addContent(String line, String token) throws Exception{    // Start of addContent() method 
+
+        String string;  // Creating local String variable, string
+
+        // Creating a switch statement that has multiple cases where it checks if the second argument to the method call
+        // is one of the following strings (different cases for each of these strings) "Window", "Panel", "Button", "Label", 
+        // "Textfield", and "End". Each of these cases create the components for each of their fields. For example, the "Window"
+        // case creates the main frame, GUI Layout, Grid, etc. The "Panel" case creates the panel and its compenents/configurations.
+        // The "Button" case creates buttons and their components, the "Label" case creates the labels, and the "Textfield" case creates the textfiled 
+
+        switch(token){  // Start of switch statement 
+
+            case "Window":  // First case, if token variable value is "Window"
+
+                // Setting title of mainFrame JFrame object to "Calculator"
+
+                mainFrame = new JFrame("Calculator");
+
+                // Calling getToken() method and using the first parameter of the addContent() method call as the argument and assigning the result to the String variable, string 
+
+                string = getToken(line);    
+
+                // Calling length() method on the string variable and assigning the value to the newly cerated int variable, stringLength
+
+                int stringLength = string.length();
+
+                // Creating a substring of the line string by calling the substring() method and using the length of the string variable value as the argument 
+                // and assigning the resulting substring to the line String variable 
+
+                line = line.substring(stringLength);    
+
+                JPanel panel1 = new JPanel();   // Creating a new JPanel object, panel1
+
+                // Creating a while loop that has the condition that 'while the Scanner object has another line', by calling the 
+                // hasNextLine() method on the Scanner object, scanner that is scanning the input file 
+
+                while(scanner.hasNextLine()){   // Start of while loop
+                    
+                    // Calling nextLine() method on the scanner object and assigning the returning next line value to the line String variable
+
+                    line = scanner.nextLine();  
+
+                    line = line.trim(); // Calling trim() method on the line String variable to remove any leading whitespaces, etc.
+
+                    // Calling getToken() method and using the first parameter of the addContent() method call as the argument and assigning the result to the String variable, string 
+
+                    string = getToken(line);  
+
+                    // Creating an if statement that checks to see if the string variable's value is "End". If it is, then the if statement breaks. 
+                    // However, if it isn't then it adds more components onto the panel1 JPanel object 
+
+                    if(string.equals("End")){   // Start of if statement 
+
+                        break;  // Break if string equals "End"
+                        
+                    } else{ // Else if string does not equal "End"
+
+                        // Calling length() method on the string variable and assigning the returning value to the stringLength1 int variable 
+
+                        int stringLength1 = string.length();
+
+                        // Calling substring() method on the line variable and using the length of the string variable as the argument and 
+                        // assigning the returning value to the String variable, content
+
+                        String content = line.substring(stringLength1);
+
+                        // Calling addContent() method and using the content substring from the above code as the first argument and 
+                        // the string variable as the second argumetn and assigning the value to a new Component class object, component
+
+                        Component component = addContent(content, string);
+
+                        panel1.add(component);  // Calling the add() method to add the Component class object, component to the panel1 JPanel object
+
+                    }   // End of if statement 
+
+                }   // End of while loop 
+
+                mainFrame.add(panel1);  // Calling the add() method to add the panel1 JPanel object to the mainFrame JFrame object 
+
+                return mainFrame;   // Returning the JFrame object, mainFrame 
+
+            case "Panel":   // Second case, if token variable value is "Panel"
+
+                line = line.trim(); // Calling trim() method on the line String variable to remove any leading whitespaces, etc.
+
+                JPanel panel2 = new JPanel(); // Creating new JPanel object panel2
+
+                // Calling getToken() method and using the first parameter of the addContent() method call as the argument and assigning the result to the String variable, string 
+
+                string = getToken(line);
+
+                // Calling length() method on the string variable and assigning the value to the newly cerated int variable, length2
+
+                int length2 = string.length();
+
+                // Creating a substring of the line string by calling the substring() method and using the length of the string variable value as the argument 
+                // and assigning the resulting substring to the line String variable 
+                
+                line = line.substring(length2);  
+
+                line = line.trim(); // Calling trim() method on the line String variable to remove any leading whitespaces, etc.
+
+                // Creating if statement for when the string variable value is "Layout", and there are also many nested if
+                // statements in this one
+
+                if(string.equals("Layout")){    // Start of if statement 
+
+                    // Calling getToken() method and using the line variable value as the argument and assigning the resulting value to the String variable, string
+
+                    string = getToken(line);
+
+                    // Calling length() method on the string variable and assigning the value to the newly cerated int variable, length3
+
+                    int length3 = string.length();
+
+                    // Creating a substring of the line string by calling the substring() method and using the length of the string variable value as the argument 
+                    // and assigning the resulting substring to the line String variable 
+                
+                    line = line.substring(length3);  
+
+                    line = line.trim(); // Calling trim() method on the line String variable to remove any leading whitespaces, etc.
+
+                    // Creating an if statement for whent he string variable value is "Grid", and in this if statement we 
+                    // parse through the input file to see what the grid for the Window is 
+
+                    if(string.equals("Grid")){  // Start of if statement
+                        
+                        // Creating if statement for when the first character in the line string is an open parantheses '('
+
+                        if(line.charAt(0) == '('){     // Start of if statement
+                            
+                            // Calling indexOf() method on line string variable to get the index of the closed parantheses ')' in the string 
+
+                            int endIndex = line.indexOf(')');
+
+                            // Calling substring() method on the line string so that the string now has everything in the parantheses, i.e. string = "(4, 5, 6, 7)"
+
+                            string = line.substring(0, endIndex);
+
+                            // Calling length() method on the string variable and assigning the value to the newly cerated int variable, length3
+
+                            int length4 = string.length();
+
+                            // Creating a substring of the line string by calling the substring() method and using the length of the string variable value as the argument 
+                            // and assigning the resulting substring to the line String variable 
+                
+                            line = line.substring(length4);  
+
+                            line = line.trim(); // Calling trim() method on the line String variable to remove any leading whitespaces, etc.
+
+                            // Creating new ArrayList<Integer> arraylist, intList 
+
+                            ArrayList<Integer> intList = new ArrayList<Integer>();
+
+                            int int1;   // Creating int variable int1
+                            int int2;   // Creating int variable int2 
+
+                            // Creating for loop that loops through the value of the string variables length
+                            // This for loop parses through the integers and then adds the integers to the 
+                            // intList ArrayList 
+
+                            for(int1 = 0; int1 < string.length(); int1++){  // Start of for loop 
+
+                                // Creating for loop that goes through and checks to see if each character in the string variable
+                                // is a digit by calling the Character class method isDigit() on each character 
+
+                                for(int2 = int1; int2 < string.length() && Character.isDigit(string.charAt(int2)); int2++);
+                
+                                // Creating if statement that adds the parsed integers to the intList ArrayList if 
+                                // int1 and int2 values are not equal. 
+
+                                if(int1 != int2){   // Start of if statement 
+
+                                    // Calling substring() method on the string variable and using int1 and int2 variables as the arguments and 
+                                    // assigning the returning value to the String variable, string1
+
+                                    String string1 = string.substring(int1, int2); 
+
+                                    // Calling Integer class method parseInt() to parse through the integers in the string1 substring 
+                                    // and then adding the result of the parse to the intList ArrayList 
+                                
+                                    intList.add(Integer.parseInt(string1));
+                
+                                }   // End of if statement 
+                
+                            }   // End of for loop 
+
+                            // Creating if statement to create a new GridLayout object, gridLayout and to populate it with the specified 
+                            // number of rows and columns from the intList ArrayList that were read off the input file 
+
+                            if(intList.size() == 4){    // Start of if statement 
+
+                                // Calling get() method on the intList ArrayList four different times to get each measurement listed in the input file 
+                                // and then assigning them to the new GridLayout object, gridLayout 
+
+                                gridLayout = new GridLayout(intList.get(0), intList.get(1), intList.get(2), intList.get(3));
+
+                                // Setting the layout of JPanel object panel2 to the GridLayout object gridLayout by calling the setLayout() method
+
+                                panel2.setLayout(gridLayout);   
+
+                            }   // End of nested if statement 
+
+                        }   // End of nested if statement 
+
+                    }   // End of nested if statement 
+
+                } // End of if statement
+                
+                // Creating a while loop that has the condition that 'while the Scanner object has another line', by calling the 
+                // hasNextLine() method on the Scanner object, scanner that is scanning the input file 
+
+                while(scanner.hasNextLine()){   // Start of while loop 
+
+                    // line = scanner.nextLine().trim();
+
+                    // Calling nextLine() method on the scanner object and assigning the returning next line value to the line String variable
+
+                    line = scanner.nextLine();  
+
+                    line = line.trim(); // Calling trim() method on the line String variable to remove any leading whitespaces, etc.
+                    
+                    // Calling getToken() method and using the first parameter of the addContent() method call as the argument and assigning the result to the String variable, string 
+                    
+                    string = getToken(line);  
+                    
+                    // Creating an if statement that checks to see if the string variable's value is "End". If it is, then the if statement breaks. 
+                    // However, if it isn't then it adds more components onto the panel2 JPanel object 
+
+                    if(string.equals("End")){   // Start of if statement 
+
+                        break;  // Break if string equals "End"
+
+                    }else{  // Else if string does not equal "End"
+
+                        // Calling length() method on the string variable and assigning the returning value to the stringLength1 int variable 
+
+                        int stringLength1 = string.length();
+
+                        // Calling substring() method on the line variable and using the length of the string variable as the argument and 
+                        // assigning the returning value to the String variable, content
+                        
+                        String content = line.substring(stringLength1);
+                        
+                        // Calling addContent() method and using the content substring from the above code as the first argument and 
+                        // the string variable as the second argumetn and assigning the value to a new Component class object, component
+                        
+                        Component component = addContent(content, string);
+                        
+                        panel2.add(component);  // Calling the add() method to add the Component class object, component to the panel1 JPanel object
+
+                    }   // End of if else statement 
+
+                }   // End of while loop 
+
+                return panel2;  // Returning JPanel object, panel2
+
+            case "Button":  // Third case, if token variable value is "Button"
+
+                // Creating if statement that goes through each button to see what the display name for the button should be 
+
+                if(line.charAt(0) == '"'){  // Start of if statement 
+
+                    // Calling indexOf() method to get the index of the characters '\"' and assigning the index to the index variable 
+
+                    int index = line.indexOf('\"');
+
+                    // Calling the substring() method to get the substring from the 1 index to the index of the characters '\"'
+                    // and assigning the substring to the string variable 
+
+                    string = line.substring(1, index);
+
+                    button = new JButton(string);   // Initializing new JButton variable button and using the string variable as the title of the button 
+
+                    // Calling indexOf() method to get the index of the characters '"' and assigning the index to the index1 variable 
+
+                    int index1 = line.indexOf('"');
+
+                    // Calling the substring() method to get the substring from the index of the character '"'
+                    // and assigning the substring to the line variable 
+
+                    line = line.substring(index1);
+
+                } else {    // Else if the character at index 0 is not '"'
+
+                    line = line.trim(); // Calling trim() method on the line String variable to remove any leading whitespaces, etc.
+
+                    button = new JButton(line); // Initializing JButton object button and using the line string variable as the title for the button   
+
+                }   // End of if else statement 
+
+                return button;  // Returning JButton object button 
+
+            case "Label":   // Fourth case, if token variable value is "Label"
+
+                line = line.trim(); // Calling trim() method on the line String variable 
+
+                JLabel Label;   // Creating JLabel object Label 
+
+                Label = new JLabel(""); // Initializing new JLabel object, Label 
+
+                return Label;   // Returning JLabel object Label 
+
+            case "Textfield":   // Fifth case, if token variable value is "Textfield"
+
+                line = line.trim(); // Calling trim() method on the line String variable 
+
+                JTextField field = new JTextField(20);  // Creating JTextField object field with 20 as the width
+
+                return field;   // Returning JTextField object field 
+
+            case "End":     // Sixth case, if token variable value is "End"
+
+                break;  // Calling the break statement to break the switch statement if token variable value is "End"
+
+        }   // End of switch statement 
+
+        return null;    // Returning null if none of the cases in the switch statement work
+
+    }   // End of addContent() method 
+
+}   // End of Main class 
